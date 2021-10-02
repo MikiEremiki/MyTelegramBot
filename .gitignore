@@ -1,3 +1,4 @@
 env/*
 .idea
-TOKEN.py
+settings.py
+*.log
