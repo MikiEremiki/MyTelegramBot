@@ -4,7 +4,7 @@ from glob import glob
 
 from telegram.ext import Updater, CallbackContext, Filters
 from telegram.ext import CommandHandler, MessageHandler
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from emoji import emojize
 
 import settings
@@ -23,8 +23,11 @@ def get_smile(user_data):
     return user_data['emoji']
 
 
-def cat_keyboard():
-    return ReplyKeyboardMarkup([['Прислать котика']])
+def main_keyboard():
+    return ReplyKeyboardMarkup([
+        ['Прислать котика',
+         KeyboardButton('Мои координаты', request_location=True)]
+    ])
 
 
 def start(update: Update, context: CallbackContext):
@@ -32,7 +35,7 @@ def start(update: Update, context: CallbackContext):
     text = f'Здравствуйте, {update.message.chat.username} ' \
            f'{context.user_data["emoji"]}'
     logging.info(text)
-    update.message.reply_text(text, reply_markup=cat_keyboard())
+    update.message.reply_text(text, reply_markup=main_keyboard())
 
 
 def talk_to_me(update: Update, context: CallbackContext):
@@ -44,7 +47,7 @@ def talk_to_me(update: Update, context: CallbackContext):
                  f'text: {update.message.text}')
     update.message.reply_text(f'{user_name} {context.user_data["emoji"]}!')
     update.message.reply_text(f'Ты написал: {user_text}',
-                              reply_markup=cat_keyboard())
+                              reply_markup=main_keyboard())
 
 
 def play_random_numbers(user_number):
@@ -74,7 +77,7 @@ def guess_number(update: Update, context: CallbackContext):
                  f'text: {update.message.text}, '
                  f'text_from: {message}'
                  )
-    update.message.reply_text(message, reply_markup=cat_keyboard())
+    update.message.reply_text(message, reply_markup=main_keyboard())
 
 
 def send_cat_picture(update: Update, context: CallbackContext):
@@ -84,8 +87,17 @@ def send_cat_picture(update: Update, context: CallbackContext):
     context.bot.send_photo(
         chat_id=chat_id,
         photo=open(cat_pic_filename, 'rb'),
-        reply_markup=cat_keyboard()
+        reply_markup=main_keyboard()
     )
+
+
+def user_coordinates(update: Update, context: CallbackContext):
+    context.user_data['emoji'] = get_smile(context.user_data)
+    coords = update.message.location
+    logging.info(coords)
+    update.message.reply_text(
+        f'Ваши координаты {coords} {context.user_data["emoji"]}',
+        reply_markup=main_keyboard())
 
 
 def create_dp(bot):
@@ -95,6 +107,7 @@ def create_dp(bot):
     dp.add_handler(CommandHandler('cat', send_cat_picture))
     dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'),
                                   send_cat_picture))
+    dp.add_handler(MessageHandler(Filters.location, user_coordinates))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
