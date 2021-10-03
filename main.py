@@ -16,17 +16,21 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     )
 
 
-def start(update: Update, context: CallbackContext):
+def get_smile():
     smile = choice(settings.USER_EMOJI)
     smile = emojize(smile, use_aliases=True)
+    return smile
+
+
+def start(update: Update, context: CallbackContext):
+    smile = get_smile()
     text = f'Здравствуйте, {update.message.chat.username} {smile}'
     logging.info(text)
     update.message.reply_text(text)
 
 
 def talk_to_me(update: Update, context: CallbackContext):
-    smile = choice(settings.USER_EMOJI)
-    smile = emojize(smile, use_aliases=True)
+    smile = get_smile()
     user_name = update.effective_user.first_name
     user_text = update.message.text
     logging.info(f'User: {update.message.chat.username}, '
