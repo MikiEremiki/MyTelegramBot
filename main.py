@@ -4,7 +4,7 @@ from glob import glob
 
 from telegram.ext import Updater, CallbackContext, Filters
 from telegram.ext import CommandHandler, MessageHandler
-from telegram import Update
+from telegram import Update, ReplyKeyboardMarkup
 from emoji import emojize
 
 import settings
@@ -23,12 +23,16 @@ def get_smile(user_data):
     return user_data['emoji']
 
 
+def cat_keyboard():
+    return ReplyKeyboardMarkup([['Прислать котика']])
+
+
 def start(update: Update, context: CallbackContext):
     context.user_data['emoji'] = get_smile(context.user_data)
     text = f'Здравствуйте, {update.message.chat.username} ' \
            f'{context.user_data["emoji"]}'
     logging.info(text)
-    update.message.reply_text(text)
+    update.message.reply_text(text, reply_markup=cat_keyboard())
 
 
 def talk_to_me(update: Update, context: CallbackContext):
@@ -39,7 +43,8 @@ def talk_to_me(update: Update, context: CallbackContext):
                  f'chatid: {update.message.chat.id}, '
                  f'text: {update.message.text}')
     update.message.reply_text(f'{user_name} {context.user_data["emoji"]}!')
-    update.message.reply_text(f'Ты написал: {user_text}')
+    update.message.reply_text(f'Ты написал: {user_text}',
+                              reply_markup=cat_keyboard())
 
 
 def play_random_numbers(user_number):
@@ -69,7 +74,7 @@ def guess_number(update: Update, context: CallbackContext):
                  f'text: {update.message.text}, '
                  f'text_from: {message}'
                  )
-    update.message.reply_text(message)
+    update.message.reply_text(message, reply_markup=cat_keyboard())
 
 
 def send_cat_picture(update: Update, context: CallbackContext):
@@ -78,7 +83,8 @@ def send_cat_picture(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     context.bot.send_photo(
         chat_id=chat_id,
-        photo=open(cat_pic_filename, 'rb')
+        photo=open(cat_pic_filename, 'rb'),
+        reply_markup=cat_keyboard()
     )
 
 
@@ -87,6 +93,8 @@ def create_dp(bot):
     dp.add_handler(CommandHandler('start', start))
     dp.add_handler(CommandHandler('guess', guess_number))
     dp.add_handler(CommandHandler('cat', send_cat_picture))
+    dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'),
+                                  send_cat_picture))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
