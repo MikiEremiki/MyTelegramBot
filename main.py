@@ -16,27 +16,29 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     )
 
 
-def get_smile():
-    smile = choice(settings.USER_EMOJI)
-    smile = emojize(smile, use_aliases=True)
-    return smile
+def get_smile(user_data):
+    if 'emoji' not in user_data:
+        smile = choice(settings.USER_EMOJI)
+        return emojize(smile, use_aliases=True)
+    return user_data['emoji']
 
 
 def start(update: Update, context: CallbackContext):
-    smile = get_smile()
-    text = f'Здравствуйте, {update.message.chat.username} {smile}'
+    context.user_data['emoji'] = get_smile(context.user_data)
+    text = f'Здравствуйте, {update.message.chat.username} ' \
+           f'{context.user_data["emoji"]}'
     logging.info(text)
     update.message.reply_text(text)
 
 
 def talk_to_me(update: Update, context: CallbackContext):
-    smile = get_smile()
+    context.user_data['emoji'] = get_smile(context.user_data)
     user_name = update.effective_user.first_name
     user_text = update.message.text
     logging.info(f'User: {update.message.chat.username}, '
                  f'chatid: {update.message.chat.id}, '
                  f'text: {update.message.text}')
-    update.message.reply_text(f'{user_name} {smile}!')
+    update.message.reply_text(f'{user_name} {context.user_data["emoji"]}!')
     update.message.reply_text(f'Ты написал: {user_text}')
 
 
