@@ -27,7 +27,7 @@ def guess_number(update: Update, context: CallbackContext):
     if context.args:
         try:
             user_number = int(context.args[0])
-            message = play_random_numbers(user_number)
+            message = play_random_numbers(user_number, context)
         except (TypeError, ValueError):
             message = 'Введите целое число'
     else:

@@ -22,14 +22,14 @@ def main_keyboard():
     ], resize_keyboard=True)
 
 
-def play_random_numbers(user_number):
+def play_random_numbers(user_number, context):
     bot_number = randint(user_number-10, user_number+10)
     if user_number > bot_number:
-        message = f'Ты загадал {user_number}, я загадал {bot_number}, ' \
+        message = f'Ты {context.user_data["emoji"]} загадал {user_number}, я загадал {bot_number}, ' \
                   f'ты выиграл!'
     elif user_number == bot_number:
-        message = f"Ты загадал {user_number}, я загадал {bot_number}, ничья!"
+        message = f'Ты {context.user_data["emoji"]} загадал {user_number}, я загадал {bot_number}, ничья!'
     else:
-        message = f"Ты загадал {user_number}, я загадал {bot_number}, " \
-                  f"я выиграл!"
+        message = f'Ты {context.user_data["emoji"]} загадал {user_number}, я загадал {bot_number}, ' \
+                  f'я выиграл!'
     return message
