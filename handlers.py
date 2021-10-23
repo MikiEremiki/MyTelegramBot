@@ -21,13 +21,14 @@ def test(update: Update, context: CallbackContext):
     print(update.message.location)
     print(update.message.contact)
     print(dir(context))
+    print(context.user_data)
 
 
 def guess_number(update: Update, context: CallbackContext):
     if context.args:
         try:
             user_number = int(context.args[0])
-            message = play_random_numbers(user_number)
+            message = play_random_numbers(user_number, context)
         except (TypeError, ValueError):
             message = 'Введите целое число'
     else:
@@ -42,12 +43,13 @@ def guess_number(update: Update, context: CallbackContext):
 
 def talk_to_me(update: Update, context: CallbackContext):
     context.user_data['emoji'] = get_smile(context.user_data)
+    emo = context.user_data['emoji']
     user_name = update.effective_user.first_name
     user_text = update.message.text
     logging.info(f'User: {update.message.chat.username}, '
                  f'chatid: {update.message.chat.id}, '
                  f'text: {update.message.text}')
-    update.message.reply_text(f'{user_name} {context.user_data["emoji"]}!')
+    update.message.reply_text(f'{user_name} {emo}!')
     update.message.reply_text(f'Ты написал: {user_text}',
                               reply_markup=main_keyboard())
 
@@ -65,10 +67,11 @@ def send_cat_picture(update: Update, context: CallbackContext):
 
 def user_coordinates(update: Update, context: CallbackContext):
     context.user_data['emoji'] = get_smile(context.user_data)
+    emo = context.user_data['emoji']
     coords = update.message.location
     logging.info(f'user: {update.effective_user.username} - coord: {coords}')
     update.message.reply_text(
-        f'Ваши координаты {coords} {context.user_data["emoji"]}',
+        f'Ваши координаты {coords} {emo}',
         reply_markup=main_keyboard())
 
 
@@ -79,3 +82,11 @@ def save_user_photo(update: Update, context: CallbackContext):
     filename = os.path.join('downloads', f'{photo_file.file_id}.jpg')
     photo_file.download(filename)
     update.message.reply_text('Файл сохранен')
+
+
+def change_avatar(update: Update, context: CallbackContext):
+    if 'emoji' in context.user_data:
+        del context.user_data['emoji']
+    context.user_data['emoji'] = get_smile(context.user_data)
+    emo = context.user_data['emoji']
+    update.message.reply_text(f'Готово: {emo}')
