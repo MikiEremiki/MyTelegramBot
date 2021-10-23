@@ -14,11 +14,11 @@ def get_smile(user_data):
 
 
 def main_keyboard():
+    my_contact = KeyboardButton('Мой контакт', request_contact=True)
+    my_location = KeyboardButton('Мои координаты', request_location=True)
     return ReplyKeyboardMarkup([
-        [KeyboardButton('Мой контакт', request_contact=True),
-         KeyboardButton('Мои координаты', request_location=True)],
-        ['Прислать котика',
-         'Заполнить анкету']
+        [my_contact, my_location],
+        ['Прислать котика', 'Заполнить анкету']
     ], resize_keyboard=True)
 
 
