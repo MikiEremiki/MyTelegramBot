@@ -5,7 +5,9 @@ from telegram.ext import (Updater, Filters,
 
 import settings
 from handlers import (start, guess_number, talk_to_me, send_cat_picture,
-                      user_coordinates, save_user_photo, test, change_avatar)
+                      user_coordinates, save_user_photo, test, change_avatar,
+                      form_start, form_name, form_rating, form_skip,
+                      form_comment)
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -26,10 +28,27 @@ def create_dp(bot):
     dp.add_handler(MessageHandler(Filters.location, user_coordinates))
     dp.add_handler(MessageHandler(Filters.contact, test))
     dp.add_handler(MessageHandler(Filters.photo, save_user_photo))
+
+    form = ConversationHandler(
+        entry_points=[MessageHandler(Filters.regex('^(Заполнить форму)$'),
+                                     form_start)],
+        states={
+            'name': [MessageHandler(Filters.text, form_name)],
+            'rating': [MessageHandler(Filters.regex('^(1|2|3|4|5)$'),
+                                      form_rating)],
+            'comment': [
+                CommandHandler('skip', form_skip),
+                MessageHandler(Filters.text, form_comment)
+            ]
+        },
+        fallbacks=[]
+    )
+    dp.add_handler(form)
+
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
-if __name__ == '__main__':
+if __name__=='__main__':
     mybot = Updater(settings.API_KEY)
 
     logging.info('Бот запущен')
