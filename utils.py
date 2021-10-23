@@ -15,9 +15,11 @@ def get_smile(user_data):
 
 def main_keyboard():
     return ReplyKeyboardMarkup([
+        [KeyboardButton('Мой контакт', request_contact=True),
+         KeyboardButton('Мои координаты', request_location=True)],
         ['Прислать котика',
-         KeyboardButton('Мои координаты', request_location=True)]
-    ])
+         'Заполнить анкету']
+    ], resize_keyboard=True)
 
 
 def play_random_numbers(user_number):
