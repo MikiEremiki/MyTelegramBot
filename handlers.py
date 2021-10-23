@@ -146,3 +146,7 @@ def form_comment(update: Update, context: CallbackContext):
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)
     return ConversationHandler.END
+
+
+def form_dontknow(update: Update, context: CallbackContext):
+    update.message.reply_text('Не понимаю')
