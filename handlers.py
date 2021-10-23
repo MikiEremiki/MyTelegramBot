@@ -1,4 +1,5 @@
 from glob import glob
+import os
 from random import choice
 import logging
 
@@ -14,6 +15,12 @@ def start(update: Update, context: CallbackContext):
            f'{context.user_data["emoji"]}'
     logging.info(text)
     update.message.reply_text(text, reply_markup=main_keyboard())
+
+
+def test(update: Update, context: CallbackContext):
+    print(update.message.location)
+    print(update.message.contact)
+    print(dir(context))
 
 
 def guess_number(update: Update, context: CallbackContext):
@@ -46,7 +53,7 @@ def talk_to_me(update: Update, context: CallbackContext):
 
 
 def send_cat_picture(update: Update, context: CallbackContext):
-    cat_photos_list = glob('image/cat*.jpg')
+    cat_photos_list = glob('images/cat*.jpg')
     cat_pic_filename = choice(cat_photos_list)
     chat_id = update.effective_chat.id
     context.bot.send_photo(
@@ -63,3 +70,12 @@ def user_coordinates(update: Update, context: CallbackContext):
     update.message.reply_text(
         f'Ваши координаты {coords} {context.user_data["emoji"]}',
         reply_markup=main_keyboard())
+
+
+def save_user_photo(update: Update, context: CallbackContext):
+    update.message.reply_text('Обрабатываем фото')
+    os.makedirs('downloads', exist_ok=True)
+    photo_file = context.bot.getFile(update.message.photo[-1].file_id)
+    filename = os.path.join('downloads', f'{photo_file.file_id}.jpg')
+    photo_file.download(filename)
+    update.message.reply_text('Файл сохранен')
