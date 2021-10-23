@@ -3,4 +3,5 @@ env/*
 settings.py
 *.log
 __pycache__/*
-image/*
+images/*
+downloads/*

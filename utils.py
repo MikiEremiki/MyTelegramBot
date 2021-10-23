@@ -14,20 +14,23 @@ def get_smile(user_data):
 
 
 def main_keyboard():
+    my_contact = KeyboardButton('Мой контакт', request_contact=True)
+    my_location = KeyboardButton('Мои координаты', request_location=True)
     return ReplyKeyboardMarkup([
-        ['Прислать котика',
-         KeyboardButton('Мои координаты', request_location=True)]
-    ])
+        [my_contact, my_location],
+        ['Прислать котика', 'Сменить аватар', 'Заполнить анкету']
+    ], resize_keyboard=True)
 
 
-def play_random_numbers(user_number):
+def play_random_numbers(user_number, context):
+    emo = context.user_data['emoji']
     bot_number = randint(user_number-10, user_number+10)
     if user_number > bot_number:
-        message = f'Ты загадал {user_number}, я загадал {bot_number}, ' \
+        message = f'Ты {emo} загадал {user_number}, я загадал {bot_number}, ' \
                   f'ты выиграл!'
     elif user_number == bot_number:
-        message = f"Ты загадал {user_number}, я загадал {bot_number}, ничья!"
+        message = f'Ты {emo} загадал {user_number}, я загадал {bot_number}, ничья!'
     else:
-        message = f"Ты загадал {user_number}, я загадал {bot_number}, " \
-                  f"я выиграл!"
+        message = f'Ты {emo} загадал {user_number}, я загадал {bot_number}, ' \
+                  f'я выиграл!'
     return message
