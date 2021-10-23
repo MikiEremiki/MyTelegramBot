@@ -18,7 +18,7 @@ def main_keyboard():
     my_location = KeyboardButton('Мои координаты', request_location=True)
     return ReplyKeyboardMarkup([
         [my_contact, my_location],
-        ['Прислать котика', 'Сменить аватар', 'Заполнить анкету']
+        ['Прислать котика', 'Сменить аватар', 'Заполнить форму']
     ], resize_keyboard=True)
 
 
