@@ -11,7 +11,7 @@ from main import subscribers
 from utils import (get_smile, main_keyboard, play_random_numbers)
 
 
-id_messages = []
+id_messages = set()
 
 
 def start(update: Update, context: CallbackContext):
@@ -102,7 +102,7 @@ def change_avatar(update: Update, context: CallbackContext):
 def form_start(update: Update, context: CallbackContext):
     reply = update.message.reply_text('Как вас зовут? Напишите ваши имя и фамилию.',
                               reply_markup=ReplyKeyboardRemove())
-    id_messages.append(reply.message_id)
+    id_messages.add(reply.message_id)
     return 'name'
 
 
@@ -110,8 +110,8 @@ def form_name(update: Update, context: CallbackContext):
     user_name = update.message.text
     if len(user_name.split()) < 2:
         reply = update.message.reply_text('Пожалуйста, напишите имя и фамилию')
-        id_messages.append(update.message.message_id)
-        id_messages.append(reply.message_id)
+        id_messages.add(update.message.message_id)
+        id_messages.add(reply.message_id)
         return 'name'
     else:
         context.user_data['form'] = {'name': user_name}
@@ -122,8 +122,8 @@ def form_name(update: Update, context: CallbackContext):
                                              one_time_keyboard=True,
                                              resize_keyboard=True)
         )
-        id_messages.append(update.message.message_id)
-        id_messages.append(reply.message_id)
+        id_messages.add(update.message.message_id)
+        id_messages.add(reply.message_id)
         return 'rating'
 
 
@@ -134,8 +134,8 @@ def form_rating(update: Update, context: CallbackContext):
         'Оставьте комментарий в свободной форме или пропустите этот шаг, '
         'введя /skip'
     )
-    id_messages.append(update.message.message_id)
-    id_messages.append(reply.message_id)
+    id_messages.add(update.message.message_id)
+    id_messages.add(reply.message_id)
     return 'comment'
 
 
@@ -146,7 +146,7 @@ def form_skip(update: Update, context: CallbackContext):
 
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)
-    id_messages.append(update.message.message_id)
+    id_messages.add(update.message.message_id)
     del_messages(update, context)
     return ConversationHandler.END
 
@@ -160,7 +160,7 @@ def form_comment(update: Update, context: CallbackContext):
 
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)
-    id_messages.append(update.message.message_id)
+    id_messages.add(update.message.message_id)
     del_messages(update, context)
     return ConversationHandler.END
 
