@@ -6,10 +6,12 @@ import logging
 from telegram.ext import CallbackContext, ConversationHandler
 from telegram import (Update, ReplyKeyboardRemove, ReplyKeyboardMarkup,
                       ParseMode)
-from telegram.ext import messagequeue as mq
 
 from main import subscribers
 from utils import (get_smile, main_keyboard, play_random_numbers)
+
+
+id_messages = []
 
 
 def start(update: Update, context: CallbackContext):
@@ -23,9 +25,9 @@ def start(update: Update, context: CallbackContext):
 def test(update: Update, context: CallbackContext):
     print(update.message.location)
     print(update.message.contact)
-    # print(dir(context))
-    print(context.user_data)
-    # print(update.message)
+    print(dir(context))
+    print(context)
+    print(update)
 
 
 def guess_number(update: Update, context: CallbackContext):
@@ -56,6 +58,7 @@ def talk_to_me(update: Update, context: CallbackContext):
     update.message.reply_text(f'{user_name} {emo}!')
     update.message.reply_text(f'Ты написал: {user_text}',
                               reply_markup=main_keyboard())
+    update.message.delete()
 
 
 def send_cat_picture(update: Update, context: CallbackContext):
@@ -97,35 +100,42 @@ def change_avatar(update: Update, context: CallbackContext):
 
 
 def form_start(update: Update, context: CallbackContext):
-    update.message.reply_text('Как вас зовут? Напишите ваши имя и фамилию.',
+    reply = update.message.reply_text('Как вас зовут? Напишите ваши имя и фамилию.',
                               reply_markup=ReplyKeyboardRemove())
+    id_messages.append(reply.message_id)
     return 'name'
 
 
 def form_name(update: Update, context: CallbackContext):
     user_name = update.message.text
     if len(user_name.split()) < 2:
-        update.message.reply_text('Пожалуйста, напишите имя и фамилию')
+        reply = update.message.reply_text('Пожалуйста, напишите имя и фамилию')
+        id_messages.append(update.message.message_id)
+        id_messages.append(reply.message_id)
         return 'name'
     else:
         context.user_data['form'] = {'name': user_name}
         reply_keyboard = [['1', '2', '3', '4', '5']]
-        update.message.reply_text(
+        reply = update.message.reply_text(
             'Оцените бота шкале от 1 до 5',
             reply_markup=ReplyKeyboardMarkup(reply_keyboard,
                                              one_time_keyboard=True,
                                              resize_keyboard=True)
         )
+        id_messages.append(update.message.message_id)
+        id_messages.append(reply.message_id)
         return 'rating'
 
 
 def form_rating(update: Update, context: CallbackContext):
     context.user_data['form']['rating'] = int(update.message.text)
 
-    update.message.reply_text(
+    reply = update.message.reply_text(
         'Оставьте комментарий в свободной форме или пропустите этот шаг, '
         'введя /skip'
     )
+    id_messages.append(update.message.message_id)
+    id_messages.append(reply.message_id)
     return 'comment'
 
 
@@ -136,6 +146,8 @@ def form_skip(update: Update, context: CallbackContext):
 
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)
+    id_messages.append(update.message.message_id)
+    del_messages(update, context)
     return ConversationHandler.END
 
 
@@ -148,6 +160,8 @@ def form_comment(update: Update, context: CallbackContext):
 
     update.message.reply_text(user_text, reply_markup=main_keyboard(),
                               parse_mode=ParseMode.HTML)
+    id_messages.append(update.message.message_id)
+    del_messages(update, context)
     return ConversationHandler.END
 
 
@@ -172,9 +186,28 @@ def unsubscribe(update: Update, context: CallbackContext):
     print(subscribers)
 
 
-@mq.queuedmessage
 def callback_minute(context: CallbackContext):
     for chat_id in subscribers:
         context.bot.send_message(chat_id=chat_id,
                                  text='One message every minute')
         print('One message every minute')
+
+
+def set_alarm(update: Update, context: CallbackContext):
+    try:
+        print(context.args)
+        seconds = abs(int(context.args[0]))
+        context.job_queue.run_once(alarm, seconds, context=update.message.chat_id)
+    except (ValueError, IndexError):
+        update.message.reply_text('Введите кол-во секунд после /alarm')
+
+
+def alarm(context: CallbackContext):
+    job = context.job
+    context.bot.sendMessage(chat_id=job.context, text='Будильник сработал!')
+
+
+def del_messages(update: Update, context: CallbackContext):
+    for id_message in id_messages:
+        context.bot.delete_message(update.message.chat_id, id_message)
+    id_messages.clear()

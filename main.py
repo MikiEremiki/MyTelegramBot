@@ -2,7 +2,6 @@ import logging
 
 from telegram.ext import (Updater, Filters,
                           CommandHandler, MessageHandler, ConversationHandler)
-from telegram.ext import messagequeue as mq
 
 import settings
 from handlers import *
@@ -42,6 +41,7 @@ def create_dp(bot: Updater):
     dp.add_handler(CommandHandler('cat', send_cat_picture))
     dp.add_handler(CommandHandler('subscribe', subscribe))
     dp.add_handler(CommandHandler('unsubscribe', unsubscribe))
+    dp.add_handler(CommandHandler('alarm', set_alarm))
     dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'),
                                   send_cat_picture))
     dp.add_handler(MessageHandler(Filters.regex('^(Сменить аватар)$'),
@@ -49,14 +49,11 @@ def create_dp(bot: Updater):
     dp.add_handler(MessageHandler(Filters.location, user_coordinates))
     dp.add_handler(MessageHandler(Filters.contact, test))
     dp.add_handler(MessageHandler(Filters.photo, save_user_photo))
-
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
 if __name__ == '__main__':
     mybot = Updater(settings.API_KEY, use_context=True)
-    mybot.bot._msq_queue = mq.MessageQueue()
-    mybot.bot._is_messages_queued_default = True
 
     logging.info('Бот запущен')
 
