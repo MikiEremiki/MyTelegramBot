@@ -7,6 +7,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 from telegram import (Update, ReplyKeyboardRemove, ReplyKeyboardMarkup,
                       ParseMode)
 
+from main import subscribers
 from utils import (get_smile, main_keyboard, play_random_numbers)
 
 
@@ -151,3 +152,27 @@ def form_comment(update: Update, context: CallbackContext):
 
 def form_dontknow(update: Update, context: CallbackContext):
     update.message.reply_text('Не понимаю')
+
+
+def subscribe(update: Update, context: CallbackContext):
+    subscribers.add(update.message.chat_id)
+    update.message.reply_text('Вы подписались!')
+    print(subscribers)
+
+
+def unsubscribe(update: Update, context: CallbackContext):
+    if update.message.chat_id in subscribers:
+        subscribers.remove(update.message.chat_id)
+        update.message.reply_text('Вы отписались!')
+    else:
+        update.message.reply_text('Вы не подписаны, '
+                                  'вы можете подписаться нажав на команду '
+                                  '\n/subscribe')
+    print(subscribers)
+
+
+def callback_minute(context: CallbackContext):
+    for chat_id in subscribers:
+        context.bot.send_message(chat_id=chat_id,
+                                 text='One message every minute')
+        print('One message every minute')
