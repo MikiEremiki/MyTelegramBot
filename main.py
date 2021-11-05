@@ -2,6 +2,7 @@ import logging
 
 from telegram.ext import (Updater, Filters,
                           CommandHandler, MessageHandler, ConversationHandler)
+from telegram.ext import CallbackContext
 
 import settings
 from handlers import (start, guess_number, talk_to_me, send_cat_picture,
@@ -9,13 +10,21 @@ from handlers import (start, guess_number, talk_to_me, send_cat_picture,
                       form_start, form_name, form_rating, form_skip,
                       form_comment, form_dontknow)
 
+subscribers = set()
+
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='bot.log'
                     )
 
 
-def create_dp(bot):
+def callback_minute(context: CallbackContext):
+    context.bot.send_message(chat_id=454342281,
+                             text='One message every minute')
+    print('One message every minute')
+
+
+def create_dp(bot: Updater):
     dp = bot.dispatcher
 
     form = ConversationHandler(
@@ -51,8 +60,9 @@ def create_dp(bot):
     dp.add_handler(MessageHandler(Filters.text, talk_to_me))
 
 
-if __name__=='__main__':
-    mybot = Updater(settings.API_KEY)
+if __name__ == '__main__':
+    mybot = Updater(settings.API_KEY, use_context=True)
+    # mybot.job_queue.run_repeating(callback_minute, interval=10, first=10)
 
     logging.info('Бот запущен')
 

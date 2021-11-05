@@ -21,8 +21,9 @@ def start(update: Update, context: CallbackContext):
 def test(update: Update, context: CallbackContext):
     print(update.message.location)
     print(update.message.contact)
-    print(dir(context))
+    # print(dir(context))
     print(context.user_data)
+    # print(update.message)
 
 
 def guess_number(update: Update, context: CallbackContext):
