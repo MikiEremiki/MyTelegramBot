@@ -6,6 +6,7 @@ import logging
 from telegram.ext import CallbackContext, ConversationHandler
 from telegram import (Update, ReplyKeyboardRemove, ReplyKeyboardMarkup,
                       ParseMode)
+from telegram.ext import messagequeue as mq
 
 from main import subscribers
 from utils import (get_smile, main_keyboard, play_random_numbers)
@@ -171,6 +172,7 @@ def unsubscribe(update: Update, context: CallbackContext):
     print(subscribers)
 
 
+@mq.queuedmessage
 def callback_minute(context: CallbackContext):
     for chat_id in subscribers:
         context.bot.send_message(chat_id=chat_id,

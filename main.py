@@ -2,6 +2,7 @@ import logging
 
 from telegram.ext import (Updater, Filters,
                           CommandHandler, MessageHandler, ConversationHandler)
+from telegram.ext import messagequeue as mq
 
 import settings
 from handlers import *
@@ -54,11 +55,14 @@ def create_dp(bot: Updater):
 
 if __name__ == '__main__':
     mybot = Updater(settings.API_KEY, use_context=True)
-    mybot.job_queue.run_repeating(callback_minute, interval=10)
+    mybot.bot._msq_queue = mq.MessageQueue()
+    mybot.bot._is_messages_queued_default = True
 
     logging.info('Бот запущен')
 
     create_dp(mybot)
+
+    mybot.job_queue.run_repeating(callback_minute, interval=10)
 
     mybot.start_polling()
     mybot.idle()
