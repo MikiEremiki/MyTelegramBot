@@ -2,13 +2,9 @@ import logging
 
 from telegram.ext import (Updater, Filters,
                           CommandHandler, MessageHandler, ConversationHandler)
-from telegram.ext import CallbackContext
 
 import settings
-from handlers import (start, guess_number, talk_to_me, send_cat_picture,
-                      user_coordinates, save_user_photo, test, change_avatar,
-                      form_start, form_name, form_rating, form_skip,
-                      form_comment, form_dontknow)
+from handlers import *
 
 subscribers = set()
 
@@ -16,12 +12,6 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
                     filename='bot.log'
                     )
-
-
-def callback_minute(context: CallbackContext):
-    context.bot.send_message(chat_id=454342281,
-                             text='One message every minute')
-    print('One message every minute')
 
 
 def create_dp(bot: Updater):
@@ -49,6 +39,8 @@ def create_dp(bot: Updater):
     dp.add_handler(CommandHandler('test', test))
     dp.add_handler(CommandHandler('guess', guess_number))
     dp.add_handler(CommandHandler('cat', send_cat_picture))
+    dp.add_handler(CommandHandler('subscribe', subscribe))
+    dp.add_handler(CommandHandler('unsubscribe', unsubscribe))
     dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'),
                                   send_cat_picture))
     dp.add_handler(MessageHandler(Filters.regex('^(Сменить аватар)$'),
@@ -62,7 +54,7 @@ def create_dp(bot: Updater):
 
 if __name__ == '__main__':
     mybot = Updater(settings.API_KEY, use_context=True)
-    # mybot.job_queue.run_repeating(callback_minute, interval=10, first=10)
+    mybot.job_queue.run_repeating(callback_minute, interval=10)
 
     logging.info('Бот запущен')
 
