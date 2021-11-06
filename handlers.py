@@ -8,15 +8,18 @@ from telegram import (Update, ReplyKeyboardRemove, ReplyKeyboardMarkup,
                       ParseMode)
 
 from main import subscribers
-from utils import (get_smile, main_keyboard, play_random_numbers)
+from utils import (main_keyboard, play_random_numbers)
+from db import (db, get_or_create_user, change_avatar_db)
+
 
 id_messages = set()
 
 
 def start(update: Update, context: CallbackContext):
-    context.user_data['emoji'] = get_smile(context.user_data)
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     text = f'Здравствуйте, {update.message.chat.username} ' \
-           f'{context.user_data["emoji"]}'
+           f'{user["emoji"]}'
     logging.info(text)
     update.message.reply_text(text, reply_markup=main_keyboard())
 
@@ -47,14 +50,13 @@ def guess_number(update: Update, context: CallbackContext):
 
 
 def talk_to_me(update: Update, context: CallbackContext):
-    context.user_data['emoji'] = get_smile(context.user_data)
-    emo = context.user_data['emoji']
-    user_name = update.effective_user.first_name
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     user_text = update.message.text
     logging.info(f'User: {update.message.chat.username}, '
                  f'chatid: {update.message.chat.id}, '
                  f'text: {update.message.text}')
-    update.message.reply_text(f'{user_name} {emo}!')
+    update.message.reply_text(f'{user["first_name"]} {user["emoji"]}!')
     update.message.reply_text(f'Ты написал: {user_text}',
                               reply_markup=main_keyboard())
     update.message.delete()
@@ -72,12 +74,12 @@ def send_cat_picture(update: Update, context: CallbackContext):
 
 
 def user_coordinates(update: Update, context: CallbackContext):
-    context.user_data['emoji'] = get_smile(context.user_data)
-    emo = context.user_data['emoji']
+    user = get_or_create_user(db, update.effective_user,
+                              update.message.chat.id)
     coords = update.message.location
     logging.info(f'user: {update.effective_user.username} - coord: {coords}')
     update.message.reply_text(
-        f'Ваши координаты {coords} {emo}',
+        f'Ваши координаты {coords} {user["emoji"]}',
         reply_markup=main_keyboard())
 
 
@@ -91,11 +93,8 @@ def save_user_photo(update: Update, context: CallbackContext):
 
 
 def change_avatar(update: Update, context: CallbackContext):
-    if 'emoji' in context.user_data:
-        del context.user_data['emoji']
-    context.user_data['emoji'] = get_smile(context.user_data)
-    emo = context.user_data['emoji']
-    update.message.reply_text(f'Готово: {emo}')
+    user = change_avatar_db(db, update.effective_user)
+    update.message.reply_text(f'Готово: {user["emoji"]}')
 
 
 def form_start(update: Update, context: CallbackContext):
