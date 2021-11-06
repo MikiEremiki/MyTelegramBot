@@ -4,7 +4,7 @@ from telegram.ext import (Updater, Filters,
                           CommandHandler, MessageHandler, ConversationHandler)
 
 import settings
-from handlers import *
+import handlers
 
 subscribers = set()
 
@@ -19,37 +19,37 @@ def create_dp(bot: Updater):
 
     form = ConversationHandler(
         entry_points=[MessageHandler(Filters.regex('^(Заполнить форму)$'),
-                                     form_start)],
+                                     handlers.form_start)],
         states={
-            'name': [MessageHandler(Filters.text, form_name)],
+            'name': [MessageHandler(Filters.text, handlers.form_name)],
             'rating': [MessageHandler(Filters.regex('^(1|2|3|4|5)$'),
-                                      form_rating)],
+                                      handlers.form_rating)],
             'comment': [
-                CommandHandler('skip', form_skip),
-                MessageHandler(Filters.text, form_comment)
+                CommandHandler('skip', handlers.form_skip),
+                MessageHandler(Filters.text, handlers.form_comment)
             ]
         },
         fallbacks=[MessageHandler(
             Filters.text | Filters.video | Filters.photo | Filters.document
-            | Filters.location, form_dontknow)]
+            | Filters.location, handlers.form_dontknow)]
     )
 
     dp.add_handler(form)
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(CommandHandler('test', test))
-    dp.add_handler(CommandHandler('guess', guess_number))
-    dp.add_handler(CommandHandler('cat', send_cat_picture))
-    dp.add_handler(CommandHandler('subscribe', subscribe))
-    dp.add_handler(CommandHandler('unsubscribe', unsubscribe))
-    dp.add_handler(CommandHandler('alarm', set_alarm))
+    dp.add_handler(CommandHandler('start', handlers.start))
+    dp.add_handler(CommandHandler('test', handlers.test))
+    dp.add_handler(CommandHandler('guess', handlers.guess_number))
+    dp.add_handler(CommandHandler('cat', handlers.send_cat_picture))
+    dp.add_handler(CommandHandler('subscribe', handlers.subscribe))
+    dp.add_handler(CommandHandler('unsubscribe', handlers.unsubscribe))
+    dp.add_handler(CommandHandler('alarm', handlers.set_alarm))
     dp.add_handler(MessageHandler(Filters.regex('^(Прислать котика)$'),
-                                  send_cat_picture))
+                                  handlers.send_cat_picture))
     dp.add_handler(MessageHandler(Filters.regex('^(Сменить аватар)$'),
-                                  change_avatar))
-    dp.add_handler(MessageHandler(Filters.location, user_coordinates))
-    dp.add_handler(MessageHandler(Filters.contact, test))
-    dp.add_handler(MessageHandler(Filters.photo, save_user_photo))
-    dp.add_handler(MessageHandler(Filters.text, talk_to_me))
+                                  handlers.change_avatar))
+    dp.add_handler(MessageHandler(Filters.location, handlers.user_coordinates))
+    dp.add_handler(MessageHandler(Filters.contact, handlers.test))
+    dp.add_handler(MessageHandler(Filters.photo, handlers.save_user_photo))
+    dp.add_handler(MessageHandler(Filters.text, handlers.talk_to_me))
 
 
 if __name__ == '__main__':
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     create_dp(mybot)
 
-    mybot.job_queue.run_repeating(callback_minute, interval=10)
+    mybot.job_queue.run_repeating(handlers.callback_minute, interval=10)
 
     mybot.start_polling()
     mybot.idle()
