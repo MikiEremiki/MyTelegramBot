@@ -7,7 +7,7 @@ from telegram.ext import CallbackContext, ConversationHandler
 from telegram import (Update, ReplyKeyboardRemove, ReplyKeyboardMarkup,
                       ParseMode)
 
-from main import subscribers
+from bot import subscribers
 from utils import (main_keyboard, play_random_numbers)
 from db import (db, get_or_create_user, change_avatar_db)
 
