@@ -1,16 +1,6 @@
-from random import randint, choice
+from random import randint
 
 from telegram import ReplyKeyboardMarkup, KeyboardButton
-from emoji import emojize
-
-import settings
-
-
-def get_smile(user_data):
-    if 'emoji' not in user_data:
-        smile = choice(settings.USER_EMOJI)
-        return emojize(smile, use_aliases=True)
-    return user_data['emoji']
 
 
 def main_keyboard():
