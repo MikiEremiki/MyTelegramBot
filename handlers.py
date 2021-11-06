@@ -10,7 +10,6 @@ from telegram import (Update, ReplyKeyboardRemove, ReplyKeyboardMarkup,
 from main import subscribers
 from utils import (get_smile, main_keyboard, play_random_numbers)
 
-
 id_messages = set()
 
 
@@ -100,8 +99,9 @@ def change_avatar(update: Update, context: CallbackContext):
 
 
 def form_start(update: Update, context: CallbackContext):
-    reply = update.message.reply_text('Как вас зовут? Напишите ваши имя и фамилию.',
-                              reply_markup=ReplyKeyboardRemove())
+    reply = update.message.reply_text(
+        'Как вас зовут? Напишите ваши имя и фамилию.',
+        reply_markup=ReplyKeyboardRemove())
     id_messages.add(reply.message_id)
     return 'name'
 
@@ -197,7 +197,8 @@ def set_alarm(update: Update, context: CallbackContext):
     try:
         print(context.args)
         seconds = abs(int(context.args[0]))
-        context.job_queue.run_once(alarm, seconds, context=update.message.chat_id)
+        context.job_queue.run_once(alarm, seconds,
+                                   context=update.message.chat_id)
     except (ValueError, IndexError):
         update.message.reply_text('Введите кол-во секунд после /alarm')
 
