@@ -5,8 +5,7 @@ from telegram.ext import (Updater, Filters,
 
 import settings
 import handlers
-
-subscribers = set()
+import form
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     level=logging.INFO,
@@ -17,24 +16,24 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
 def create_dp(bot: Updater):
     dp = bot.dispatcher
 
-    form = ConversationHandler(
+    form_hd = ConversationHandler(
         entry_points=[MessageHandler(Filters.regex('^(Заполнить форму)$'),
-                                     handlers.form_start)],
+                                     form.form_start)],
         states={
-            'name': [MessageHandler(Filters.text, handlers.form_name)],
+            'name': [MessageHandler(Filters.text, form.form_name)],
             'rating': [MessageHandler(Filters.regex('^(1|2|3|4|5)$'),
-                                      handlers.form_rating)],
+                                      form.form_rating)],
             'comment': [
-                CommandHandler('skip', handlers.form_skip),
-                MessageHandler(Filters.text, handlers.form_comment)
+                CommandHandler('skip', form.form_skip),
+                MessageHandler(Filters.text, form.form_comment)
             ]
         },
         fallbacks=[MessageHandler(
             Filters.text | Filters.video | Filters.photo | Filters.document
-            | Filters.location, handlers.form_dontknow)]
+            | Filters.location, form.form_dontknow)]
     )
 
-    dp.add_handler(form)
+    dp.add_handler(form_hd)
     dp.add_handler(CommandHandler('start', handlers.start))
     dp.add_handler(CommandHandler('test', handlers.test))
     dp.add_handler(CommandHandler('guess', handlers.guess_number))
